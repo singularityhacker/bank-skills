@@ -11,3 +11,8 @@ env/
 .coverage
 htmlcov/
 *.log
+
+# Planning and discovery docs
+stories/
+DISCOVERY.md
+PRD.md

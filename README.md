@@ -1,222 +1,49 @@
-# Skill Shop
+# Bank Skills
 
-A factory system for creating, testing, and publishing AI agent skills to multiple registries. This project provides a repeatable, autonomous production process that transforms seed ideas into fully-functional, distributable skills.
+A skill pack that gives AI agents banking capabilities via the [Wise API](https://docs.wise.com/api-reference). Agents can check balances, send money, and share account and routing details for receiving payments—all through a standard skill package (SKILL.md + run.sh) compatible with CLI and MCP.
 
-## Mission
+## Features
 
-**Skill Shop** is designed to demonstrate AI development capabilities through the systematic creation and publication of agent skills. By establishing a streamlined factory process, we can:
+- **Check balances** — Query Wise multi-currency balances for the configured profile
+- **Send money** — Initiate transfers (quote → recipient → transfer → fund flow)
+- **Share receive details** — Retrieve account number, routing number, IBAN, and related info so agents can share them for inbound payments
 
-- Generate a steady stream of small, impactful projects
-- Maximize visibility by publishing to multiple registries with minimal overhead
-- Create a repeatable, improvable production workflow
-- Build skills that are primarily Python-based with natural language interfaces
+## Prerequisites
 
-## The Factory Process
+1. A [Wise](https://wise.com) personal account
+2. A Wise **business** account (required for API access)
+3. API token generated from Settings → API tokens (2FA required)
 
-The Skill Shop operates through a six-stage pipeline that transforms ideas into published skills:
+## Setup
 
-### 1. Seed Input
-**Input**: A seed idea in the form of:
-- A link to documentation or an API
-- A public API specification
-- A code package or library
-- A problem statement
+Configure credentials via environment variables:
 
-**Output**: Raw material for skill development
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `WISE_API_TOKEN` | Yes | Personal API token from Wise dashboard |
+| `WISE_PROFILE_ID` | No | Profile ID (defaults to first available) |
+| `WISE_ENV` | No | `sandbox` or `production` (default: `production`) |
 
-### 2. QA Discovery
-An AI agent performs research and generates Q&A questions to fully scope the skill requirements. This stage ensures all edge cases, dependencies, and constraints are identified before development begins.
+The skill reads credentials from the environment at runtime. Do not store tokens in config files that other skills might access.
 
-### 3. PRD (Product Requirements Document)
-An agent compiles all research documents and Q&A into a comprehensive Product Requirements Document. This PRD must be **approved by a human** before proceeding to the next stage, ensuring alignment with goals and feasibility.
+## Surfaces
 
-### 4. User Stories
-The PRD is analyzed and broken down into small, independently testable user stories. Each story is designed to:
-- Be completable within a single context window
-- Minimize dependency on broader project context
-- Be independently testable and verifiable
+- **Skill package** — SKILL.md + run.sh for agent discovery and invocation
+- **CLI** — Terminal commands for testing and scripting
+- **MCP** — Tools exposed for MCP-compatible agent frameworks
 
-### 5. The Development Loop
-A semi-autonomous development loop that:
-- Consumes user stories one by one
-- Marks stories complete in a checklist
-- Can operate across multiple context windows (e.g., overnight)
-- Includes **closed-loop verification**:
-  - CLI functionality is tested and visible
-  - Web UI is tested and visible
-  - Integration across all components is verified
-- Logs bugs as new todo items
-- Continues until integration passes, no new bugs are created, and the process completes
+## Sandbox
 
-### 6. Generated Artifacts
-Each skill produces a complete set of artifacts:
-
-- **Raw Python files** (Python-first approach)
-- **CLI interface** (Textual TUI)
-- **Web application** (Textual Web - same codebase as CLI)
-- **MCP server** (FastMCP)
-- **Standard skill format** following the [AgentSkills pattern](https://github.com/agentskills/agentskills)
-
-## Technical Architecture
-
-### Core Principles
-
-1. **Python-First Runtime**: All business logic lives in Python. Node/npm is used only as a distribution and orchestration layer, not as the execution runtime.
-
-2. **Skill as Contract**: A skill is a folder containing:
-   - `SKILL.md` - Natural language interface contract (what the agent reads)
-   - `run.sh` - Executable wrapper that calls Python
-   - Optional: `skill.json`, examples, tests
-
-3. **One Codebase, Multiple Surfaces**:
-   - Script/library API (pure Python)
-   - CLI + Web UI (Textual)
-   - MCP server (FastMCP)
-
-4. **Multi-Registry Publishing**: Skills are packaged once but can be published to multiple registries:
-   - [skills.sh](https://skills.sh/) (npm-based distribution)
-   - [ClawHub](https://clawhub.ai/) (OpenClaw ecosystem)
-   - [skillsmp.com](https://skillsmp.com/)
-
-### Repository Structure (Proposed)
-
-```
-skill-shop/
-├── pyproject.toml
-├── README.md
-├── src/
-│   └── skillshop/
-│       ├── core/              # Pure Python logic (no UI, no MCP)
-│       ├── cli/               # Textual TUI
-│       ├── web/               # Textual web mode
-│       ├── mcp/               # FastMCP server
-│       ├── runtime/           # Skill loader + execution harness
-│       └── publishing/        # Multi-registry publishing helpers
-├── skills/                    # Agent-facing skill registry
-│   └── <skill-name>/
-│       ├── SKILL.md          # YAML frontmatter + instructions
-│       ├── skill.json        # Optional metadata
-│       ├── run.sh            # Wrapper entrypoint
-│       └── examples/          # Golden input/output examples
-├── publish/                   # Publishing toolchain
-│   ├── build_bundle.py
-│   ├── publish_npm.sh
-│   └── publish_clawhub.sh
-└── .github/
-    └── workflows/
-        └── publish.yml       # CI/CD for multi-registry publishing
-```
-
-### Skill Format
-
-Each skill follows the standard format:
-
-**SKILL.md** (with YAML frontmatter):
-```markdown
----
-name: my-skill
-description: One-liner describing what it does.
-homepage: https://example.com
-metadata: {"openclaw":{"emoji":"🦞","requires":{"bins":["uv"],"env":["MY_API_KEY"]},"primaryEnv":"MY_API_KEY"}}
----
-
-# My Skill
-
-## Purpose
-One sentence describing what it does.
-
-## Inputs
-- List inputs (types, format, constraints)
-
-## Outputs
-- What it returns (types, format)
-
-## Usage
-Command: `<entrypoint> --arg1 ...`
-
-## Failure modes
-- What errors look like
-- Retry guidance
-```
-
-**run.sh** (execution wrapper):
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-# Prefer uv if present, fall back to python
-if command -v uv >/dev/null 2>&1; then
-  uv run python -m skillshop.runtime.runner "<skill_name>" "$@"
-else
-  python -m skillshop.runtime.runner "<skill_name>" "$@"
-fi
-```
-
-## Design Decisions
-
-### Distribution Strategy
-
-**npm as Universal Transport Layer**: npm has become a universal binary distribution layer, not just a JavaScript ecosystem. It handles OS detection, versioning, caching, and global installs with zero-friction user experience. Python skills are wrapped in minimal npm packages that contain `SKILL.md` and wrapper scripts, bootstrap Python environments on install, and call Python entrypoints—never executing Node code for business logic.
-
-**Multi-Registry Publishing**: Skills are packaged once but published to multiple registries:
-- **skills.sh**: Git-based discovery, npm distribution, ephemeral CLI (`npx skills add`)
-- **ClawHub**: Versioned bundle registry, persistent tool (`clawhub publish`)
-- **skillsmp.com**: Additional distribution channel
-
-The publishing layer handles format conversions and registry-specific requirements automatically. Versions are synchronized across registries to keep the process simple and maintainable.
-
-### Development Process
-
-**PRD Approval**: Human approval of the PRD focuses on ensuring the project hasn't diverged from the original business use case, rather than detailed technical review. This provides a lightweight gate while maintaining alignment with goals.
-
-**User Story Granularity**: User stories are designed to consume no more than 60% of a typical context window, ensuring they can be completed independently within a single session while minimizing dependencies on broader project context.
-
-**Development Loop Autonomy**: The development loop operates semi-autonomously, with initial iterations being observed to establish appropriate guardrails. The system is designed to learn and adapt based on experience.
-
-**Testing Approach**: Unit tests are written for each user story during development. Integration tests run when all user stories are complete. The UI is made visible to the agent for testing purposes, though visual regression testing may be added later based on need.
-
-**Bug Handling**: The development loop can continue with non-critical bugs, allowing progress while issues are tracked and addressed. Critical bugs may require intervention depending on their impact.
-
-### Technical Architecture
-
-**Self-Contained Skills**: Each skill is designed to be independently shippable and self-contained. This ensures skills can be distributed, installed, and used without dependencies on the broader Skill Shop infrastructure.
-
-**MCP Integration**: An MCP server is built for each skill to support frameworks that don't yet support the SKILLS approach. By building the MCP server, we automatically advertise its availability. MCP registry integration will be explored as the ecosystem evolves.
-
-**Textual UI Constraints**: The UI is built using the Textual framework, working within its capabilities and limitations. This provides a consistent, terminal-native experience across CLI and web modes.
-
-**Dependency Management**: The approach to dependency management (shared vs. per-skill `pyproject.toml`) is still being refined based on practical experience with skill development.
-
-### Quality & Standards
-
-**Documentation**: Skills link to their source repositories for detailed documentation. This project serves as a template for future skill development, with each skill having its own repository. Examples are provided as documentation rather than executable tests.
-
-**Skill Validation**: Validation requirements for publishing (SKILL.md format, run.sh correctness, etc.) are still being defined and will evolve based on registry requirements and practical experience.
-
-**Publishing Automation**: The automation strategy for publishing (fully automated vs. manual approval) and versioning approach are still being determined based on workflow needs.
-
-### Project Scope
-
-**Template System**: This project is designed as a template that can be instantiated for new skill projects. It establishes the patterns, structure, and tooling that will be reused across all skill development.
-
-**Skill Discovery**: The project relies on external registries for skill discovery rather than maintaining a local registry. A personal website will showcase all created skills for portfolio purposes.
-
-**Success Metrics**: Success is measured through GitHub stars and community engagement rather than telemetry or usage tracking. This keeps the focus on building useful, discoverable skills.
-
-**Project Nature**: This is a personal project designed to demonstrate agentic development capabilities and build a portfolio of work in the AI agent ecosystem. While contributions are welcome, the primary goal is showcasing expertise in this domain.
-
-## References
-
-- [Skills Standard](https://github.com/anthropics/skills) - The canonical skill format
-- [FastMCP](https://gofastmcp.com/getting-started/welcome) - Python MCP server framework
-- [Textual](https://www.textualize.io/projects/) - Python TUI framework
-- [Textual Web](https://github.com/Textualize/textual-web) - Web mode for Textual apps
-- [AgentSkills Pattern](https://github.com/agentskills/agentskills) - Standard skill structure
-
-## Status
-
-🚧 **In Planning** - This project is currently in the design and planning phase. The factory process and technical architecture are being refined based on research and best practices from existing skill registries.
+Use `WISE_ENV=sandbox` to test against [Wise Sandbox](https://wise-sandbox.com) without real funds. Sandbox accounts come pre-funded with test credit.
 
 ---
 
-*"Skillshop as a product, skills as content."*
+## Disclaimer
+
+Banking is heavily regulated and requires KYC. You must create a business bank account and assume full liability. This project is for **R&D and exploration only**.
+
+- Use at your own risk
+- Do not use a personal bank account
+- Do not connect an agent to an account holding significant funds
+- Wise restricts crypto use; avoid crypto on/off-ramps
+- Automation may conflict with Wise's terms of service—review before use
