@@ -1,0 +1,82 @@
+name: Publish Skill
+
+on:
+  workflow_dispatch:
+    inputs:
+      skill_name:
+        description: 'Name of the skill to publish'
+        required: true
+        type: string
+      registry:
+        description: 'Registry to publish to'
+        required: true
+        type: choice
+        options:
+          - all
+          - npm
+          - clawhub
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      
+      - name: Determine skill name and version
+        id: skill_info
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "skill_name=${{ github.event.inputs.skill_name }}" >> $GITHUB_OUTPUT
+            echo "version=manual" >> $GITHUB_OUTPUT
+          else
+            # Extract from tag (format: v1.0.0-skill-name or skill-name-v1.0.0)
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+            echo "skill_name=unknown" >> $GITHUB_OUTPUT
+            echo "version=${TAG_NAME#v}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Build bundle
+        run: |
+          python publish/build_bundle.py "${{ steps.skill_info.outputs.skill_name }}"
+      
+      - name: Publish to npm
+        if: |
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.registry == 'npm') ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.registry == 'all') ||
+          (github.event_name == 'push')
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          bash publish/publish_npm.sh "${{ steps.skill_info.outputs.skill_name }}"
+      
+      - name: Publish to ClawHub
+        if: |
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.registry == 'clawhub') ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.registry == 'all') ||
+          (github.event_name == 'push')
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          npm install -g clawhub
+          echo "$CLAWHUB_TOKEN" | clawhub login --token-stdin
+          bash publish/publish_clawhub.sh "${{ steps.skill_info.outputs.skill_name }}"
