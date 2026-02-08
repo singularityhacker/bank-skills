@@ -247,17 +247,32 @@ The project structure:
 
 ```
 bank-skills/
-├── src/bankskills/           # Core implementation
+├── src/bankskills/           # Core implementation (primary source)
 │   ├── cli/bank/             # CLI commands
 │   ├── core/bank/            # Wise API client & operations
 │   ├── mcp/                  # MCP server
 │   └── runtime/              # Skill runner
-├── skills/bank-skill/        # Packaged skill
+├── skills/bank-skill/        # Packaged skill (self-contained)
+│   ├── bankskills/           # Copy of src/bankskills/ (synced)
 │   ├── SKILL.md              # Skill documentation
 │   └── run.sh                # Skill entry point
+├── scripts/                  # Build and sync scripts
+│   └── sync-skill-code.sh    # Sync src/ to skills/
 ├── tests/                    # Test suite
 └── publish/                  # Build/bundle scripts
 ```
+
+### Making Code Changes
+
+After editing code in `src/bankskills/`, sync it to the skill package:
+
+```bash
+./scripts/sync-skill-code.sh
+```
+
+This ensures the self-contained skill in `skills/bank-skill/` stays up to date.
+
+See [DEVELOPMENT-WORKFLOW.md](DEVELOPMENT-WORKFLOW.md) for the complete development guide.
 
 ## Disclaimer
 
