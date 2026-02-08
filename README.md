@@ -34,15 +34,44 @@ The skill reads credentials from the environment at runtime. Do not store tokens
 
 ## Quick Start
 
-### For Claude Desktop Users
+### For Claude Desktop Users (MCP Extension)
 
-1. Download `dist/bank-skills-0.1.0.mcpb`
-2. Double-click to install (or use Settings → Extensions → Install Extension)
-3. Enter your Wise API token in the settings UI
-4. Restart Claude Desktop
-5. Ask Claude: "Check my Wise balance"
+**Requirements:**
+- Claude Desktop 1.1+ with UV runtime support
+- Wise Business Account with API access
+- macOS, Windows, or Linux (no manual setup needed)
 
-📖 [Full MCP Installation Guide](./MCP_INSTALLATION.md)
+**Installation:**
+
+1. **Download** `dist/bank-skills-0.1.0.mcpb` (110KB)
+2. **Install** - Double-click the file OR Settings → Extensions → Install Extension
+3. **Configure** - Enter your Wise API token in the settings UI (stored securely in Keychain)
+4. **Restart** Claude Desktop
+5. **Test** - Ask Claude: "Check my Wise balance"
+
+**Getting Your API Token:**
+
+1. Log in to your [Wise Business Account](https://wise.com)
+2. Go to Settings → API Tokens
+3. Create a new token (requires 2FA)
+4. Copy and paste into Claude Desktop extension settings
+
+**Available Tools:**
+- `check_balance` - Query Wise balances
+- `get_receive_details` - Get account/routing details for receiving payments
+- `send_money` - Initiate transfers
+
+**Test Prompts:**
+```
+"Check my Wise balance"
+"What are my USD account details for receiving money?"
+"Send $10 to John Smith at account 123456789, routing 111000025..."
+```
+
+**Troubleshooting:**
+- If tools don't appear: restart Claude Desktop completely
+- If you get "not configured" error: verify API token is set in Settings → Extensions
+- For transfer errors: ensure you provide all required fields (routing number, address, etc. for USD)
 
 ### For Developers / CLI Users
 
