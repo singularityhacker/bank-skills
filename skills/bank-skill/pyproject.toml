@@ -1,0 +1,10 @@
+[project]
+name = "bank-skill"
+version = "0.1.4"
+description = "Bank skills: check balances, send money, and get receive details via Wise"
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp>=0.9.0",
+    "httpx>=0.25.0",
+    "pydantic>=2.0.0",
+]

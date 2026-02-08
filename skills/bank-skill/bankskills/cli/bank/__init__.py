@@ -1,0 +1,1 @@
+"""Bank skill CLI commands."""
