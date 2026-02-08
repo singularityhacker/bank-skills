@@ -82,10 +82,10 @@ class SkillBundleBuilder:
         
         # Create package.json
         package_json = {
-            "name": f"@skill-shop/{skill_name}",
+            "name": f"@singularityhacker/{skill_name}",
             "version": skill_metadata.get("version", "1.0.0"),
             "description": skill_metadata.get("description", ""),
-            "files": ["SKILL.md", "run.sh", "src"],
+            "files": ["README.md", "SKILL.md", "run.sh", "bankskills", "pyproject.toml"],
             "bin": {
                 skill_name: "./run.sh"
             }
@@ -94,8 +94,17 @@ class SkillBundleBuilder:
         with open(package_dir / "package.json", "w") as f:
             json.dump(package_json, f, indent=2)
         
-        # Copy SKILL.md and run.sh
+        # Copy README.md, SKILL.md and run.sh
         import shutil
+        
+        # Get project root
+        project_root = Path(__file__).parent.parent.parent.parent
+        
+        # Copy README from project root
+        if (project_root / "README.md").exists():
+            shutil.copy2(project_root / "README.md", package_dir / "README.md")
+        
+        # Copy skill files
         if (skill_path / "SKILL.md").exists():
             shutil.copy2(skill_path / "SKILL.md", package_dir / "SKILL.md")
         if (skill_path / "run.sh").exists():
@@ -103,8 +112,16 @@ class SkillBundleBuilder:
             # Make executable
             (package_dir / "run.sh").chmod(0o755)
         
-        # Copy src directory if it exists
-        if (skill_path / "src").exists():
-            shutil.copytree(skill_path / "src", package_dir / "src", dirs_exist_ok=True)
+        # Copy the actual Python source code from src/bankskills/
+        src_bankskills = project_root / "src" / "bankskills"
+        if src_bankskills.exists():
+            dest_bankskills = package_dir / "bankskills"
+            if dest_bankskills.exists():
+                shutil.rmtree(dest_bankskills)
+            shutil.copytree(src_bankskills, dest_bankskills)
+        
+        # Copy pyproject.toml for dependencies
+        if (project_root / "pyproject.toml").exists():
+            shutil.copy2(project_root / "pyproject.toml", package_dir / "pyproject.toml")
         
         return package_dir

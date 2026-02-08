@@ -25,6 +25,43 @@ Configure credentials via environment variables:
 
 The skill reads credentials from the environment at runtime. Do not store tokens in config files that other skills might access.
 
+## Security & API Key Management
+
+### How API Keys Are Stored
+
+This skill follows the standard convention used across the skills ecosystem: **API keys are never stored in the skill code**. Instead, they're read from environment variables at runtime.
+
+**Storage varies by deployment method:**
+
+| Method | Storage Location | Security |
+|--------|-----------------|----------|
+| **Claude Desktop (.mcpb)** | OS credential manager (Keychain/Windows Credential Manager) | ✅ Encrypted, secure |
+| **CLI / Direct Usage** | Shell environment (`export WISE_API_TOKEN='...'`) | ⚠️ User-managed |
+| **OpenClaw/ClawdBot** | `~/.openclaw/openclaw.json` under `skills.entries.bank-skill.env` | ⚠️ File permissions |
+| **MCP Server** | Shell environment | ⚠️ User-managed |
+
+**The skill's responsibility:** 
+- ✅ Read from `WISE_API_TOKEN` environment variable
+- ✅ Fail gracefully with clear error if missing
+- ✅ Never log or expose the token value
+- ✅ Declare requirements in SKILL.md metadata
+
+**Your responsibility:**
+- Set the environment variable before running
+- Keep your API token secure
+- Don't commit tokens to version control
+
+### Wise API Security Features
+
+Wise provides additional security controls for API tokens:
+
+- **IP Address Whitelisting** — Restrict API token usage to specific IP addresses in your Wise dashboard (Settings → API Tokens). This prevents unauthorized access even if your token is compromised.
+- **2FA Required** — Token generation requires two-factor authentication
+- **Token Scopes** — Business accounts can create tokens with limited permissions
+- **Token Rotation** — Generate new tokens and revoke old ones at any time
+
+**Recommended:** Enable IP whitelisting for production use to limit token usage to your server/workstation IP addresses.
+
 ## Surfaces
 
 - **MCP Desktop Extension** — .mcpb bundle for Claude Desktop (double-click install)
