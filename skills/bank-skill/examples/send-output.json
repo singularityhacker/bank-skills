@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "transfer": {
+    "id": 12345678,
+    "status": "processing",
+    "sourceAmount": 100.00,
+    "sourceCurrency": "USD",
+    "targetAmount": 100.00,
+    "targetCurrency": "USD"
+  }
+}

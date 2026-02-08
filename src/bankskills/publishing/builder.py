@@ -6,7 +6,7 @@ import json
 import zipfile
 from pathlib import Path
 from typing import Dict, Optional
-from skillshop.runtime.registry import SkillRegistry
+from bankskills.runtime.registry import SkillRegistry
 
 
 class SkillBundleBuilder:

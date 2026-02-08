@@ -1,0 +1,8 @@
+{
+  "name": "bank-skill",
+  "version": "0.1.0",
+  "entrypoint": "./run.sh",
+  "interfaces": ["cli", "mcp"],
+  "inputs": "json-stdin",
+  "outputs": "json-stdout"
+}

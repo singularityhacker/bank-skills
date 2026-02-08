@@ -1,0 +1,15 @@
+{
+  "action": "send",
+  "sourceCurrency": "USD",
+  "targetCurrency": "USD",
+  "amount": 100.00,
+  "recipientName": "John Smith",
+  "recipientAccount": "123456789",
+  "recipientRoutingNumber": "111000025",
+  "recipientCountry": "US",
+  "recipientAddress": "123 Main St",
+  "recipientCity": "New York",
+  "recipientState": "NY",
+  "recipientPostCode": "10001",
+  "recipientAccountType": "CHECKING"
+}

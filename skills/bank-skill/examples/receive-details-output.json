@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "details": [
+    {
+      "currency": "USD",
+      "accountHolder": "Your Business Name",
+      "accountNumber": "1234567890",
+      "routingNumber": "026073150",
+      "bankName": "Community Federal Savings Bank"
+    }
+  ]
+}

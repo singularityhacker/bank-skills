@@ -1,0 +1,31 @@
+{
+  "manifest_version": "0.4",
+  "name": "bank-skills",
+  "display_name": "Bank Skills",
+  "version": "0.1.0",
+  "description": "Check Wise balances, send money, and get account details for receiving payments",
+  "icon": "icon.png",
+  "author": {
+    "name": "Justice Conder"
+  },
+  "server": {
+    "type": "uv",
+    "entry_point": "server/server.py",
+    "mcp_config": {
+      "command": "uv",
+      "args": ["run", "python", "${__dirname}/server/server.py"],
+      "env": {
+        "WISE_API_TOKEN": "${user_config.wise_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "wise_api_token": {
+      "type": "string",
+      "title": "Wise API Token",
+      "description": "Personal API token from your Wise business account (Settings → API Tokens). Stored securely in macOS Keychain.",
+      "sensitive": true,
+      "required": true
+    }
+  }
+}

@@ -10,7 +10,7 @@ import json
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, Optional
-from skillshop.runtime.registry import SkillRegistry
+from bankskills.runtime.registry import SkillRegistry
 
 
 class SkillRunner:
@@ -81,10 +81,10 @@ def main():
     """
     CLI entry point for skill runner.
     
-    Usage: python -m skillshop.runtime.runner <skill_name> [args...]
+    Usage: python -m bankskills.runtime.runner <skill_name> [args...]
     """
     if len(sys.argv) < 2:
-        print("Usage: python -m skillshop.runtime.runner <skill_name> [args...]", file=sys.stderr)
+        print("Usage: python -m bankskills.runtime.runner <skill_name> [args...]", file=sys.stderr)
         sys.exit(1)
     
     skill_name = sys.argv[1]

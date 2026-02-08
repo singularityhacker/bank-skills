@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "balances": [
+    {
+      "currency": "USD",
+      "amount": 1250.00,
+      "reservedAmount": 0.00
+    }
+  ]
+}

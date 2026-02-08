@@ -16,3 +16,18 @@ htmlcov/
 stories/
 DISCOVERY.md
 PRD.md
+test.md
+debug.txt
+MCP-FINE-TUNING.md
+MCP-help.txt
+mcp-logs.txt
+todo.md
+
+# MCP extension build artifacts (source in mcp-extension/)
+mcp-extension/.venv/
+mcp-extension/__pycache__/
+mcp-extension/uv.lock
+mcp-extension/mcp-extension.mcpb
+
+# Solution reference files
+solution/

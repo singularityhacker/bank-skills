@@ -1,5 +1,5 @@
 """
-Main Textual CLI application for Skill Shop.
+Main Textual CLI application for Bank Skills.
 """
 
 from textual.app import App, ComposeResult
@@ -7,9 +7,9 @@ from textual.containers import Container, Vertical
 from textual.widgets import Header, Footer, Static
 
 
-class SkillShopApp(App):
+class BankSkillsApp(App):
     """
-    Main Textual application for the Skill Shop CLI.
+    Main Textual application for the Bank Skills CLI.
     
     Provides a terminal UI for:
     - Browsing available skills
@@ -37,7 +37,7 @@ class SkillShopApp(App):
         """Create child widgets for the app."""
         yield Header()
         with Container(classes="main-container"):
-            yield Static("Skill Shop CLI - Coming Soon", id="main-content")
+            yield Static("Bank Skills CLI - Coming Soon", id="main-content")
         yield Footer()
     
     def action_quit(self) -> None:
@@ -52,7 +52,7 @@ class SkillShopApp(App):
 
 def main():
     """Entry point for CLI application."""
-    app = SkillShopApp()
+    app = BankSkillsApp()
     app.run()
 
 
