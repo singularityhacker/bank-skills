@@ -5,6 +5,7 @@
 # Bank Skills
 
 [![npm version](https://img.shields.io/npm/v/@singularityhacker/bank-skill?color=blue)](https://www.npmjs.com/package/@singularityhacker/bank-skill)
+[![MCP Extension](https://img.shields.io/badge/MCP-Download%20.mcpb-purple?logo=anthropic)](https://github.com/singularityhacker/bank-skills/raw/main/dist/bank-skills-0.1.0.mcpb)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Tests](https://img.shields.io/badge/tests-127%20passing-brightgreen.svg)](./tests)
@@ -13,6 +14,11 @@
 </div>
 
 A skill pack that gives AI agents banking capabilities via the [Wise API](https://docs.wise.com/api-reference). Agents can check balances, send money, and share account and routing details for receiving payments—all through a standard skill package (SKILL.md + run.sh) compatible with CLI and MCP.
+
+- **Skills.sh:** https://skills.sh/singularityhacker/bank-skills/bank-skill 
+- **NPM:** https://www.npmjs.com/package/@singularityhacker/bank-skill
+- **ClawHub:** https://clawhub.ai/singularityhacker/bank-skills
+- **MCP Extension (.mcpb):** [Download for Claude Desktop](https://github.com/singularityhacker/bank-skills/raw/main/dist/bank-skills-0.1.0.mcpb) 
 
 ## Features
 
@@ -25,13 +31,6 @@ A skill pack that gives AI agents banking capabilities via the [Wise API](https:
 1. A [Wise](https://wise.com) personal account
 2. A Wise **business** account (required for API access)
 3. API token generated from Settings → API tokens (2FA required)
-
-## Availability
-
-Skills.sh: https://skills.sh/singularityhacker/bank-skills/bank-skill 
-NPM: https://www.npmjs.com/package/@singularityhacker/bank-skill
-Clawhub: https://clawhub.ai/singularityhacker/bank-skills
-MCP Server: 
 
 ## Setup
 
