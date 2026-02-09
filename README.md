@@ -26,6 +26,13 @@ A skill pack that gives AI agents banking capabilities via the [Wise API](https:
 2. A Wise **business** account (required for API access)
 3. API token generated from Settings → API tokens (2FA required)
 
+## Availability
+
+Skills.sh: https://skills.sh/singularityhacker/bank-skills/bank-skill 
+NPM: https://www.npmjs.com/package/@singularityhacker/bank-skill
+Clawhub: https://clawhub.ai/singularityhacker/bank-skills
+MCP Server: 
+
 ## Setup
 
 Configure credentials via environment variables:
