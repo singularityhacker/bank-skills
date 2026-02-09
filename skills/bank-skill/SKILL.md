@@ -1,5 +1,6 @@
 ---
 name: bank-skill
+version: 0.1.4
 description: Check balances, send money, and share receive details via Wise
 homepage: https://github.com/singularityhacker/bank-skills
 metadata: {"openclaw":{"emoji":"🏦","requires":{"bins":["python"],"env":["WISE_API_TOKEN"]},"primaryEnv":"WISE_API_TOKEN"}}

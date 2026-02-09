@@ -1,4 +1,16 @@
+<div align="center">
+
+![Bank Skills Banner](./lobster-bank.png)
+
 # Bank Skills
+
+[![npm version](https://img.shields.io/npm/v/@singularityhacker/bank-skill?color=blue)](https://www.npmjs.com/package/@singularityhacker/bank-skill)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Tests](https://img.shields.io/badge/tests-127%20passing-brightgreen.svg)](./tests)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-singularityhacker%2Fbank--skills-181717?logo=github)](https://github.com/singularityhacker/bank-skills)
+
+</div>
 
 A skill pack that gives AI agents banking capabilities via the [Wise API](https://docs.wise.com/api-reference). Agents can check balances, send money, and share account and routing details for receiving payments—all through a standard skill package (SKILL.md + run.sh) compatible with CLI and MCP.
 
