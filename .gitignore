@@ -1,6 +1,7 @@
 .DS_Store
 notes/
 dist/
+!dist/*.mcpb
 *.pyc
 __pycache__/
 *.egg-info/
