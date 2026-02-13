@@ -15,25 +15,10 @@ htmlcov/
 
 # Planning and discovery docs
 stories/
-DISCOVERY.md
-PRD.md
-TEMPLATE.md
-test.md
-debug.txt
-MCP-FINE-TUNING.md
-MCP-help.txt
-mcp-logs.txt
-todo.md
+docs/
 
 # MCP extension build artifacts (source in mcp-extension/)
 mcp-extension/.venv/
 mcp-extension/__pycache__/
 mcp-extension/uv.lock
 mcp-extension/mcp-extension.mcpb
-
-# Solution reference files
-solution/
-FIRST-TIME-PUBLISH.md
-DEPLOYMENT-READY.md
-DEVELOPMENT-WORKFLOW.md
-PUBLISHING.md

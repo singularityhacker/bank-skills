@@ -290,8 +290,6 @@ After editing code in `src/bankskills/`, sync it to the skill package:
 
 This ensures the self-contained skill in `skills/bank-skill/` stays up to date.
 
-See [DEVELOPMENT-WORKFLOW.md](DEVELOPMENT-WORKFLOW.md) for the complete development guide.
-
 ## Disclaimer
 
 Banking is heavily regulated and requires KYC. You must create a business bank account and assume full liability. This project is for **R&D and exploration only**.
