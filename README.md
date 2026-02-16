@@ -8,12 +8,12 @@
 [![MCP Extension](https://img.shields.io/badge/MCP-Download%20.mcpb-purple?logo=anthropic)](https://github.com/singularityhacker/bank-skills/raw/main/dist/bank-skills-0.1.0.mcpb)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-127%20passing-brightgreen.svg)](./tests)
+[![Tests](https://img.shields.io/badge/tests-174%20passing-brightgreen.svg)](./tests)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-singularityhacker%2Fbank--skills-181717?logo=github)](https://github.com/singularityhacker/bank-skills)
 
 </div>
 
-A skill pack that gives AI agents banking capabilities via the [Wise API](https://docs.wise.com/api-reference). Agents can check balances, send money, and share account and routing details for receiving payments—all through a standard skill package (SKILL.md + run.sh) compatible with CLI and MCP.
+A comprehensive skill pack that gives AI agents both **traditional banking** (via [Wise API](https://docs.wise.com/api-reference)) and **on-chain token operations** (via Uniswap on Base). Agents can check balances, send money, share account details, create wallets, and swap tokens—all through a standard skill package compatible with CLI and MCP.
 
 - **Skills.sh:** https://skills.sh/singularityhacker/bank-skills/bank-skill 
 - **NPM:** https://www.npmjs.com/package/@singularityhacker/bank-skill
@@ -22,9 +22,21 @@ A skill pack that gives AI agents banking capabilities via the [Wise API](https:
 
 ## Features
 
-- **Check balances** — Query Wise multi-currency balances for the configured profile
-- **Send money** — Initiate transfers (quote → recipient → transfer → fund flow)
-- **Share receive details** — Retrieve account number, routing number, IBAN, and related info so agents can share them for inbound payments
+### Traditional Banking (Wise API)
+- **Check balances** — Query multi-currency balances for your Wise profile
+- **Send money** — Initiate international transfers (quote → recipient → transfer → fund)
+- **Share receive details** — Get account number, routing number, IBAN, and related info for receiving payments
+
+### On-Chain Token Operations (Base Network)
+- **Create wallet** — Generate Ethereum wallet for token operations
+- **Token swaps** — Buy any token with ETH via Uniswap (V3 + V4 support)
+- **Token transfers** — Send ERC-20 tokens or native ETH
+- **Balance tracking** — Check ETH and token balances
+- **Sweep configuration** — Set target token and view swap history
+
+![ClawBank Sweeper Architecture](./sweeper-dark.png)
+
+*The sweeper workflow: Deposits land in your Wise account, agents detect new balances, fund the on-chain wallet, swap ETH for target tokens via Uniswap, and log all transactions to sweep.config.*
 
 ## Prerequisites
 
@@ -40,6 +52,8 @@ Configure credentials via environment variables:
 |----------|----------|-------------|
 | `WISE_API_TOKEN` | Yes | Personal API token from Wise dashboard |
 | `WISE_PROFILE_ID` | No | Profile ID (defaults to first available) |
+| `CLAWBANK_WALLET_PASSWORD` | No | Sweeper wallet keystore password (default: clawbank-default) |
+| `BASE_RPC_URL` | No | Base chain RPC (default: https://mainnet.base.org) |
 
 The skill reads credentials from the environment at runtime. Do not store tokens in config files that other skills might access.
 
@@ -98,11 +112,11 @@ Wise provides additional security controls for API tokens:
 
 **Installation:**
 
-1. **Download** `dist/bank-skills-0.1.0.mcpb` (110KB)
-2. **Install** - Double-click the file OR Settings → Extensions → Install Extension
-3. **Configure** - Enter your Wise API token in the settings UI (stored securely in Keychain)
+1. **Download** `dist/bank-skills-0.1.0.mcpb` (120KB)
+2. **Install** — Double-click the file OR Settings → Extensions → Install Extension
+3. **Configure** — Enter your Wise API token in the settings UI (stored securely in Keychain)
 4. **Restart** Claude Desktop
-5. **Test** - Ask Claude: "Check my Wise balance"
+5. **Test** — Ask Claude: "Check my Wise balance" or "Create a wallet for token swaps"
 
 **Getting Your API Token:**
 
@@ -111,16 +125,39 @@ Wise provides additional security controls for API tokens:
 3. Create a new token (requires 2FA)
 4. Copy and paste into Claude Desktop extension settings
 
-**Available Tools:**
-- `check_balance` - Query Wise balances
-- `get_receive_details` - Get account/routing details for receiving payments
-- `send_money` - Initiate transfers
+**Available Tools (11 Total):**
+
+**Banking Tools (3):**
+- `check_balance` — Query Wise multi-currency balances
+- `get_receive_details` — Get account/routing details for receiving payments
+- `send_money` — Initiate international transfers
+
+**Token Tools (8):**
+- `create_wallet` — Generate Ethereum wallet on Base (stores encrypted keystore locally)
+- `get_wallet` — Get wallet address and ETH balance
+- `export_private_key` — Export private key for wallet recovery/import
+- `set_target_token` — Set target token for swaps (any ERC-20 on Base)
+- `get_sweep_config` — View current target token and swap history
+- `get_token_balance` — Check ERC-20 token balance
+- `buy_token` — Swap ETH → any token on Base (universal Uniswap support)
+- `send_token` — Send ERC-20 tokens or native ETH
 
 **Test Prompts:**
+
+*Banking:*
 ```
 "Check my Wise balance"
 "What are my USD account details for receiving money?"
 "Send $10 to John Smith at account 123456789, routing 111000025..."
+```
+
+*Token Operations:*
+```
+"Create a wallet for token swaps"
+"Set target token to 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"  (USDC)
+"Buy 0.001 ETH worth of USDC"
+"What's my USDC balance?"
+"Send 5 USDC to 0x..."
 ```
 
 **Troubleshooting:**
@@ -239,6 +276,42 @@ echo '{
 }' | skills/bank-skill/run.sh
 ```
 
+## Token Swaps on Base
+
+The token swap feature supports **any ERC-20 token with WETH liquidity** on Base via Uniswap.
+
+### How It Works
+
+**Hybrid V3+V4 Routing:**
+1. **Tries V3 first** — Tests common fee tiers (0.05%, 0.3%, 1%)
+2. **Falls back to V4** — For tokens with V4 pools (like ClawBank with hooks)
+3. **Automatic detection** — Seamlessly routes to the best available pool
+
+**Supported Tokens:**
+- ✅ USDC, DAI, WBTC, and other standard tokens (V3 pools)
+- ✅ ClawBank and other V4 tokens with hooks
+- ✅ Any token with WETH liquidity on Base
+- ✅ Automatically supports new token listings
+
+**Verified Working:**
+- **USDC:** V3 swap, 0.001 ETH → 3.91 USDC ([tx](https://basescan.org/tx/006afdeb6aa723a651042ab8640ca18b59e205d0ee1e35f0011f3b46d36d92a9))
+- **ClawBank:** V4 swap, 0.002 ETH → 3.6M ClawBank ([tx](https://basescan.org/tx/c8558197b15f2e7e806b90f6c723be9f0fecffd77927014e465f39941489bb12))
+
+### Example Usage
+
+```python
+# Via MCP tools in Claude Desktop:
+set_target_token("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")  # USDC
+buy_token(0.001)  # Buys ~$2 of USDC
+
+set_target_token("0x16332535E2c27da578bC2e82bEb09Ce9d3C8EB07")  # ClawBank
+buy_token(0.002)  # Buys ~3.6M ClawBank
+```
+
+**Gas Costs:**
+- V3 swaps: ~250k gas (~$0.01)
+- V4 swaps: ~450k gas (~$0.02)
+
 ## MCP Server
 
 Start the MCP server:
@@ -248,16 +321,40 @@ export WISE_API_TOKEN='your-api-key-here'
 uv run python -m bankskills.mcp.server
 ```
 
-Available tools:
-- `check_balance` — Query Wise balances
-- `get_receive_details` — Get account/routing details
-- `send_money` — Initiate transfers
+**All Available Tools (11):**
+
+**Banking Tools:**
+- `check_balance` — Query Wise multi-currency balances
+- `get_receive_details` — Get account/routing details for receiving payments
+- `send_money` — Initiate international transfers
+
+**Token Tools:**
+- `create_wallet` — Generate Ethereum wallet on Base
+- `get_wallet` — Get wallet address and ETH balance
+- `export_private_key` — Export private key for recovery
+- `set_target_token` — Set target token for swaps
+- `get_sweep_config` — View target token and swap history
+- `get_token_balance` — Check ERC-20 token balance
+- `buy_token` — Swap ETH → any token (universal Uniswap support)
+- `send_token` — Send ERC-20 tokens or native ETH
 
 ## Running Tests
 
 ```bash
+# Run all tests
 uv run pytest tests/ -v
+
+# Run specific test suites
+uv run pytest tests/test_sweeper.py -v  # Token swap tests
+uv run pytest tests/test_17_mcp_bank_tools.py -v  # Banking MCP tests
 ```
+
+**Test Coverage:** 174 tests passing
+- Banking operations (Wise API)
+- Token operations (wallet, swaps, transfers)
+- MCP tool schemas and availability
+- V3/V4 hybrid swap logic
+- Error handling and validation
 
 ## Development
 
@@ -282,13 +379,139 @@ bank-skills/
 
 ### Making Code Changes
 
-After editing code in `src/bankskills/`, sync it to the skill package:
+After editing code in `src/bankskills/`, sync it to the skill package and MCP extension:
 
 ```bash
+# Sync to skill package
 ./scripts/sync-skill-code.sh
+
+# Sync to MCP extension (for sweeper/wallet modules)
+cp src/bankskills/sweeper.py mcp-extension/server/sweeper.py
+cp src/bankskills/wallet.py mcp-extension/server/wallet.py
+
+# Rebuild MCP extension
+./scripts/build-mcpb.sh
 ```
 
-This ensures the self-contained skill in `skills/bank-skill/` stays up to date.
+This ensures consistency across:
+- `skills/bank-skill/` (skill package)
+- `mcp-extension/` (Claude Desktop extension)
+- `dist/bank-skills-0.1.0.mcpb` (distributable bundle)
+
+## Tool Reference
+
+### Banking Tools (Wise API)
+
+#### `check_balance`
+Query Wise multi-currency balances for the configured profile.
+
+**Parameters:**
+- `currency` (optional) — Filter by currency code (e.g., "USD", "EUR")
+
+**Returns:** List of balances with amounts and currency codes
+
+#### `get_receive_details`
+Get account/routing details for receiving payments in various currencies.
+
+**Parameters:**
+- `currency` (optional) — Filter by currency code
+
+**Returns:** Account numbers, routing numbers, IBANs, and bank details
+
+#### `send_money`
+Initiate international transfer via Wise.
+
+**Parameters:**
+- `source_currency` — Source currency (e.g., "USD")
+- `target_currency` — Target currency
+- `amount` — Amount to send
+- `recipient_name` — Full name of recipient
+- `recipient_account` — Account number or IBAN
+- `recipient_routing_number` — For USD: 9-digit ABA routing number
+- `recipient_country` — Two-letter country code (e.g., "US", "DE")
+- `recipient_account_type` — For USD: "CHECKING" or "SAVINGS"
+- `recipient_address`, `recipient_city`, `recipient_state`, `recipient_post_code` — Required for USD ACH
+
+**Returns:** Transfer ID, status, and amount details
+
+### Token Tools (Base Network)
+
+#### `create_wallet`
+Generate a new Ethereum wallet for token operations on Base.
+
+**Parameters:** None
+
+**Returns:** Wallet address (keystore saved to `~/.clawbank/wallet.json`)
+
+#### `get_wallet`
+Get the current wallet address and ETH balance on Base.
+
+**Parameters:** None
+
+**Returns:** Wallet address and ETH balance
+
+#### `export_private_key`
+Export the wallet's private key for recovery or import into other wallets.
+
+**Parameters:** None
+
+**Returns:** Private key (hex string) and wallet address
+
+**⚠️ Warning:** Keep private keys secure. Anyone with the key has full control of the wallet.
+
+#### `set_target_token`
+Set the target token address for swaps.
+
+**Parameters:**
+- `token_address` — ERC-20 contract address on Base (e.g., "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" for USDC)
+
+**Returns:** Token address and symbol
+
+#### `get_sweep_config`
+View current target token configuration and recent swap history.
+
+**Parameters:** None
+
+**Returns:** Target token address, symbol, network, and last 10 swaps
+
+#### `get_token_balance`
+Check ERC-20 token balance for the wallet.
+
+**Parameters:**
+- `token_address` — ERC-20 contract address
+
+**Returns:** Token symbol, balance (human-readable), and raw balance
+
+#### `buy_token`
+Swap ETH for any token on Base via Uniswap.
+
+**How it works:**
+- Tries Uniswap V3 first (0.05%, 0.3%, 1% fee tiers) — works for 95% of tokens
+- Falls back to Uniswap V4 for tokens with custom pools (e.g., ClawBank)
+- Automatic routing, no manual configuration needed
+
+**Parameters:**
+- `amount_eth` — Amount of ETH to swap (reserves 0.001 ETH for gas)
+
+**Returns:** Transaction hash, amount in, amount out, status
+
+**Supported tokens:** Any ERC-20 with WETH liquidity on Base (USDC, DAI, WBTC, ClawBank, etc.)
+
+**Example:**
+```python
+set_target_token("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913")  # USDC
+buy_token(0.001)  # Buys ~$2 USDC via V3
+```
+
+#### `send_token`
+Send ERC-20 tokens or native ETH from the wallet.
+
+**Parameters:**
+- `token_address` — ERC-20 contract address, or "ETH"/"native" for ETH
+- `to_address` — Recipient wallet address
+- `amount` — Amount to send (in token units, decimals handled automatically)
+
+**Returns:** Transaction hash and status
 
 ## Disclaimer
 

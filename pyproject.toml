@@ -15,6 +15,10 @@ dependencies = [
     "pydantic>=2.0.0",
     "pyyaml>=6.0",
     "httpx>=0.25.0",
+    "web3>=6.0.0",
+    "eth-account>=0.11.0",
+    "eth-abi>=4.0.0",
+    "uniswap-universal-router-decoder>=2.0.0",
 ]
 
 [project.optional-dependencies]

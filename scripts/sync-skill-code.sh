@@ -35,6 +35,8 @@ dependencies = [
     "fastmcp>=0.9.0",
     "httpx>=0.25.0",
     "pydantic>=2.0.0",
+    "web3>=6.0.0",
+    "eth-account>=0.11.0",
 ]
 EOF
 

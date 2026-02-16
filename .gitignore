@@ -22,3 +22,8 @@ mcp-extension/.venv/
 mcp-extension/__pycache__/
 mcp-extension/uv.lock
 mcp-extension/mcp-extension.mcpb
+.env
+
+# Wallet keystores (contain encrypted private keys)
+.clawbank/
+**/wallet.json

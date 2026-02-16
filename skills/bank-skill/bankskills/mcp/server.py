@@ -168,6 +168,160 @@ def send_money(
         return {"success": False, "error": str(e)}
 
 
+# --- Sweeper tools (on-chain token buyback on Base) ---
+
+
+@mcp.tool()
+def create_wallet() -> Dict[str, Any]:
+    """Create a new Ethereum wallet for ClawBank Sweeper.
+
+    Saves encrypted keystore to ~/.clawbank/wallet.json.
+    No-ops if wallet already exists.
+
+    Returns:
+        Dict with address on success, or error on failure.
+    """
+    try:
+        from bankskills.wallet import create_wallet as _create_wallet
+
+        result = _create_wallet()
+        return {"success": True, "address": result["address"]}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@mcp.tool()
+def get_wallet() -> Dict[str, Any]:
+    """Return the ClawBank wallet address and ETH balance on Base.
+
+    Returns:
+        Dict with address and eth_balance on success, or error if wallet does not exist.
+    """
+    try:
+        from bankskills.wallet import WalletError, get_wallet as _get_wallet
+
+        result = _get_wallet()
+        return {"success": True, "address": result["address"], "eth_balance": result["eth_balance"]}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@mcp.tool()
+def set_target_token(token_address: str) -> Dict[str, Any]:
+    """Set the target token for sweeps in sweep.config.
+
+    Args:
+        token_address: ERC-20 contract address on Base (0x...).
+
+    Returns:
+        Dict with status, token_address, token_symbol on success.
+    """
+    try:
+        from bankskills.sweeper import SweeperError, set_target_token as _set_target_token
+
+        result = _set_target_token(token_address)
+        return {"success": True, **result}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@mcp.tool()
+def get_sweep_config() -> Dict[str, Any]:
+    """Return the current sweep configuration and recent sweep log.
+
+    Returns:
+        Dict with target_token, token_symbol, network, recent_sweeps.
+    """
+    try:
+        from bankskills.sweeper import get_sweep_config as _get_sweep_config
+
+        result = _get_sweep_config()
+        return {"success": True, **result}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@mcp.tool()
+def get_token_balance(token_address: str) -> Dict[str, Any]:
+    """Check ERC-20 token balance for the ClawBank wallet on Base.
+
+    Args:
+        token_address: ERC-20 contract address on Base (0x...).
+
+    Returns:
+        Dict with token_address, symbol, balance (human-readable), raw_balance on success.
+    """
+    try:
+        from bankskills.sweeper import get_token_balance as _get_token_balance
+
+        result = _get_token_balance(token_address)
+        return {"success": True, **result}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@mcp.tool()
+def buy_token(amount_eth: float) -> Dict[str, Any]:
+    """Execute a token swap on Base: ETH → target token.
+
+    Uses Uniswap V3. Reserves 0.001 ETH for gas. Requires target token to be set.
+
+    Args:
+        amount_eth: Amount of ETH to spend.
+
+    Returns:
+        Dict with tx_hash, amount_in, amount_out, status on success.
+    """
+    try:
+        from bankskills.sweeper import buy_token as _buy_token
+
+        result = _buy_token(amount_eth)
+        return {"success": True, **result}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@mcp.tool()
+def send_token(
+    token_address: str,
+    to_address: str,
+    amount: float,
+) -> Dict[str, Any]:
+    """Send ERC-20 tokens or native ETH from the ClawBank wallet.
+
+    Args:
+        token_address: ERC-20 contract address on Base, or "ETH"/"native" for raw ETH.
+        to_address: Recipient wallet address.
+        amount: Amount to send (in token units; decimals handled internally).
+
+    Returns:
+        Dict with tx_hash and status on success.
+    """
+    try:
+        from bankskills.sweeper import send_token as _send_token
+
+        result = _send_token(token_address, to_address, amount)
+        return {"success": True, **result}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@mcp.tool()
+def export_private_key() -> Dict[str, Any]:
+    """Export the ClawBank wallet private key for manual recovery or import into MetaMask.
+
+    Returns:
+        Dict with private_key, address, and security warning.
+    """
+    try:
+        from bankskills.wallet import export_private_key as _export_private_key
+
+        result = _export_private_key()
+        return {"success": True, **result}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
 def main():
     """Entry point for MCP server."""
     # FastMCP handles server startup
