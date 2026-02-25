@@ -8,7 +8,7 @@
 [![MCP Extension](https://img.shields.io/badge/MCP-Download%20.mcpb-purple?logo=anthropic)](https://github.com/singularityhacker/bank-skills/raw/main/dist/bank-skills-0.1.0.mcpb)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-174%20passing-brightgreen.svg)](./tests)
+[![Tests](https://img.shields.io/badge/tests-254%20passing-brightgreen.svg)](./tests)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-singularityhacker%2Fbank--skills-181717?logo=github)](https://github.com/singularityhacker/bank-skills)
 
 </div>
@@ -125,12 +125,25 @@ Wise provides additional security controls for API tokens:
 3. Create a new token (requires 2FA)
 4. Copy and paste into Claude Desktop extension settings
 
-**Available Tools (11 Total):**
+**Available Tools (24 Total):**
 
-**Banking Tools (3):**
+**Banking Tools (16):**
 - `check_balance` — Query Wise multi-currency balances
 - `get_receive_details` — Get account/routing details for receiving payments
 - `send_money` — Initiate international transfers
+- `get_exchange_rate` — Get live or historical mid-market exchange rates
+- `list_currencies` — List all currencies Wise supports
+- `get_profile` — Get Wise profile info (personal/business)
+- `get_transfer_status` — Check status of a transfer by ID
+- `list_recipients` — List saved recipient accounts
+- `get_delivery_estimate` — Get estimated delivery time for a transfer
+- `get_quote` — Preview exchange rate, fees, and delivery before sending
+- `list_transfers` — List recent transfers (transaction history)
+- `delete_recipient` — Remove a saved recipient
+- `convert_balance` — Convert between currencies within your account
+- `save_recipient` — Save a new recipient for future transfers
+- `get_balance_statement` — Get detailed transaction statement for a currency
+- `get_activity` — Get unified activity feed for your account
 
 **Token Tools (8):**
 - `create_wallet` — Generate Ethereum wallet on Base (stores encrypted keystore locally)
@@ -149,6 +162,17 @@ Wise provides additional security controls for API tokens:
 "Check my Wise balance"
 "What are my USD account details for receiving money?"
 "Send $10 to John Smith at account 123456789, routing 111000025..."
+"What's the current USD to EUR exchange rate?"
+"What currencies does Wise support?"
+"Show me my Wise profile"
+"What's the status of transfer 12345678?"
+"Who are my saved recipients?"
+"When will transfer 12345678 arrive?"
+"How much would it cost to send $500 to EUR?"
+"Show me my recent transfers"
+"Convert $100 from USD to EUR in my account"
+"Get my USD statement for January 2025"
+"Show me my recent account activity"
 ```
 
 *Token Operations:*
@@ -321,14 +345,27 @@ export WISE_API_TOKEN='your-api-key-here'
 uv run python -m bankskills.mcp.server
 ```
 
-**All Available Tools (11):**
+**All Available Tools (24):**
 
-**Banking Tools:**
+**Banking Tools (16):**
 - `check_balance` — Query Wise multi-currency balances
 - `get_receive_details` — Get account/routing details for receiving payments
 - `send_money` — Initiate international transfers
+- `get_exchange_rate` — Get live or historical mid-market exchange rates
+- `list_currencies` — List all currencies Wise supports
+- `get_profile` — Get Wise profile info (personal/business)
+- `get_transfer_status` — Check status of a transfer by ID
+- `list_recipients` — List saved recipient accounts
+- `get_delivery_estimate` — Get estimated delivery time for a transfer
+- `get_quote` — Preview exchange rate, fees, and delivery before sending
+- `list_transfers` — List recent transfers (transaction history)
+- `delete_recipient` — Remove a saved recipient
+- `convert_balance` — Convert between currencies within your account
+- `save_recipient` — Save a new recipient for future transfers
+- `get_balance_statement` — Get detailed transaction statement for a currency
+- `get_activity` — Get unified activity feed for your account
 
-**Token Tools:**
+**Token Tools (8):**
 - `create_wallet` — Generate Ethereum wallet on Base
 - `get_wallet` — Get wallet address and ETH balance
 - `export_private_key` — Export private key for recovery
@@ -349,7 +386,7 @@ uv run pytest tests/test_sweeper.py -v  # Token swap tests
 uv run pytest tests/test_17_mcp_bank_tools.py -v  # Banking MCP tests
 ```
 
-**Test Coverage:** 174 tests passing
+**Test Coverage:** 254 tests passing
 - Banking operations (Wise API)
 - Token operations (wallet, swaps, transfers)
 - MCP tool schemas and availability
@@ -433,6 +470,126 @@ Initiate international transfer via Wise.
 - `recipient_address`, `recipient_city`, `recipient_state`, `recipient_post_code` — Required for USD ACH
 
 **Returns:** Transfer ID, status, and amount details
+
+#### `get_exchange_rate`
+Get the current mid-market exchange rate between two currencies.
+
+**Parameters:**
+- `source` (required) — Source currency code (e.g., "USD", "GBP")
+- `target` (required) — Target currency code (e.g., "EUR", "JPY")
+- `time` (optional) — ISO-8601 timestamp for a historical rate (e.g., "2025-01-15T12:00:00")
+
+**Returns:** Rate value, source currency, target currency, and timestamp
+
+#### `list_currencies`
+List all currencies that Wise supports for transfers.
+
+**Parameters:** None
+
+**Returns:** List of currencies with code, name, and symbol
+
+#### `get_profile`
+Get the Wise profile information (personal and/or business).
+
+**Parameters:** None
+
+**Returns:** List of profiles with id, type, and fullName
+
+#### `get_transfer_status`
+Check the current status of a transfer by its ID.
+
+**Parameters:**
+- `transfer_id` (required) — Numeric transfer ID returned by `send_money`
+
+**Returns:** Transfer status, amounts, rate, creation time, and active issues flag
+
+#### `list_recipients`
+List saved recipient accounts (people or businesses you've sent money to).
+
+**Parameters:**
+- `currency` (optional) — Filter by currency code
+
+**Returns:** List of recipients with id, accountHolderName, currency, type
+
+#### `get_delivery_estimate`
+Get the estimated delivery time for a transfer.
+
+**Parameters:**
+- `transfer_id` (required) — Numeric transfer ID returned by `send_money`
+
+**Returns:** Estimated delivery date/time
+
+#### `get_quote`
+Preview the exchange rate, fees, and delivery estimate before sending.
+
+**Parameters:**
+- `source_currency` (required) — Currency you're sending from (e.g., "USD")
+- `target_currency` (required) — Currency the recipient will receive (e.g., "EUR")
+- `amount` (required) — Amount in source currency
+
+**Returns:** Exchange rate, fee, source/target amounts, estimated delivery, rate expiration
+
+#### `list_transfers`
+List recent transfers (transaction history).
+
+**Parameters:**
+- `status` (optional) — Filter by status (e.g., "funds_converted", "cancelled")
+- `limit` (optional) — Max results (default 10, max 50)
+
+**Returns:** List of transfers with id, status, amounts, rate, date
+
+#### `delete_recipient`
+Remove a saved recipient by deactivating them.
+
+**Parameters:**
+- `recipient_id` (required) — Numeric recipient ID from `list_recipients`
+
+**Returns:** Confirmation with id and active=False
+
+#### `convert_balance`
+Convert money between currencies within your Wise account.
+
+**Parameters:**
+- `source_currency` (required) — Currency to convert from (e.g., "USD")
+- `target_currency` (required) — Currency to convert to (e.g., "EUR")
+- `amount` (required) — Amount in source currency to convert
+
+**Returns:** Conversion details with rate, source/target amounts
+
+#### `save_recipient`
+Save a new recipient for future transfers.
+
+**Parameters:**
+- `currency` (required) — 3-letter currency code (e.g., "USD", "EUR", "GBP")
+- `recipient_name` (required) — Full name of the recipient
+- `account_number` (required) — Account number, IBAN, or other identifier
+- `recipient_type` (optional) — "iban" (default), "aba", or "sort_code"
+- `sort_code` (optional) — UK sort code (required for GBP sort_code type)
+- `routing_number` (optional) — US ABA routing number (required for USD aba type)
+- `account_type` (optional) — "CHECKING" or "SAVINGS" (for USD, default "CHECKING")
+- `country` (optional) — 2-letter country code (required for USD)
+- `address`, `city`, `state`, `post_code` (optional) — Recipient address (required for USD)
+
+**Returns:** Saved recipient with id, name, currency, type
+
+#### `get_balance_statement`
+Get a detailed transaction statement for a currency balance.
+
+**Parameters:**
+- `currency` (required) — 3-letter currency code (e.g., "USD")
+- `start_date` (required) — ISO-8601 start (e.g., "2025-01-01T00:00:00Z")
+- `end_date` (required) — ISO-8601 end (e.g., "2025-01-31T23:59:59Z")
+
+**Returns:** Statement with currency, date range, opening balance, and transactions list
+
+#### `get_activity`
+Get the unified activity feed for your Wise account.
+
+**Parameters:**
+- `since` (optional) — ISO-8601 start timestamp
+- `until` (optional) — ISO-8601 end timestamp
+
+**Returns:** List of activities with type, title, description, amount, status, date
 
 ### Token Tools (Base Network)
 

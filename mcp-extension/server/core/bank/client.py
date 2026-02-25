@@ -28,6 +28,13 @@ class WiseClient:
         url = f"{self.base_url}{path}"
         return httpx.get(url, headers=self._headers(), params=params)
 
-    def post(self, path: str, json_body: Optional[Dict[str, Any]] = None) -> httpx.Response:
+    def post(self, path: str, json_body: Optional[Dict[str, Any]] = None, extra_headers: Optional[Dict[str, str]] = None) -> httpx.Response:
         url = f"{self.base_url}{path}"
-        return httpx.post(url, headers=self._headers(), json=json_body)
+        headers = self._headers()
+        if extra_headers:
+            headers.update(extra_headers)
+        return httpx.post(url, headers=headers, json=json_body)
+
+    def delete(self, path: str) -> httpx.Response:
+        url = f"{self.base_url}{path}"
+        return httpx.delete(url, headers=self._headers())
