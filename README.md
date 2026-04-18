@@ -679,3 +679,7 @@ Banking is heavily regulated and requires KYC. You must create a business bank a
 - Do not connect an agent to an account holding significant funds
 - Wise restricts crypto use; avoid crypto on/off-ramps
 - Automation may conflict with Wise's terms of service—review before use
+
+## Download History
+
+[![Download History](https://skill-history.com/chart/singularityhacker/bank-skills.svg)](https://skill-history.com/singularityhacker/bank-skills)
